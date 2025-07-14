@@ -23,10 +23,9 @@ public class UserAccountController {
         return userAccountService.register(userRegisterDto);
     }
 
-    // TODO
     @PostMapping("/login")
-    public UserDto login() {
-        return userAccountService.getUser("login");
+    public UserDto login(Principal principal) {
+        return userAccountService.getUser(principal.getName());
     }
 
     @DeleteMapping("/user/{login}")
@@ -49,11 +48,10 @@ public class UserAccountController {
         return userAccountService.changeRolesList(login, role, false);
     }
 
-    // TODO
     @PatchMapping("/password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void changePassword() {
-        userAccountService.changePassword("login", "newPassword");
+    public void changePassword(Principal principal, @RequestHeader("X-Password") String newPassword) {
+        userAccountService.changePassword(principal.getName(), newPassword);
     }
 
     @GetMapping("/user/{login}")
