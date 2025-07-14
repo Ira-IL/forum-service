@@ -1,0 +1,63 @@
+package telran.java58.accounting.controller;
+
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+import telran.java58.accounting.dto.RolesDto;
+import telran.java58.accounting.dto.UserDto;
+import telran.java58.accounting.dto.UserEditDto;
+import telran.java58.accounting.dto.UserRegisterDto;
+import telran.java58.accounting.service.UserAccountService;
+
+import java.security.Principal;
+
+@RestController
+@RequestMapping("/account")
+@RequiredArgsConstructor
+public class UserAccountController {
+    private final UserAccountService userAccountService;
+
+    @PostMapping("/register")
+    public UserDto register(@RequestBody UserRegisterDto userRegisterDto) {
+        return userAccountService.register(userRegisterDto);
+    }
+
+    // TODO
+    @PostMapping("/login")
+    public UserDto login() {
+        return userAccountService.getUser("login");
+    }
+
+    @DeleteMapping("/user/{login}")
+    public UserDto removeUser(@PathVariable String login) {
+        return userAccountService.removeUser(login);
+    }
+
+    @PatchMapping("/user/{login}")
+    public UserDto updateUser(@PathVariable String login, @RequestBody UserEditDto userEditDto) {
+        return userAccountService.updateUser(login, userEditDto);
+    }
+
+    @PatchMapping("/user/{login}/role/{role}")
+    public RolesDto addRole(@PathVariable String login, @PathVariable String role) {
+        return userAccountService.changeRolesList(login, role, true);
+    }
+
+    @DeleteMapping("/user/{login}/role/{role}")
+    public RolesDto deleteRole(@PathVariable String login, @PathVariable String role) {
+        return userAccountService.changeRolesList(login, role, false);
+    }
+
+    // TODO
+    @PatchMapping("/password")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void changePassword() {
+        userAccountService.changePassword("login", "newPassword");
+    }
+
+    @GetMapping("/user/{login}")
+    public UserDto getUser(@PathVariable String login) {
+        return userAccountService.getUser(login);
+    }
+}
