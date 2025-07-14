@@ -3,6 +3,7 @@ package telran.java58.accounting.service;
 import org.mindrot.jbcrypt.BCrypt;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Service;
 import telran.java58.accounting.dao.UserAccountRepository;
 import telran.java58.accounting.dto.RolesDto;
@@ -12,11 +13,12 @@ import telran.java58.accounting.dto.UserRegisterDto;
 import telran.java58.accounting.dto.exception.InvalidDataException;
 import telran.java58.accounting.dto.exception.UserExistsException;
 import telran.java58.accounting.dto.exception.UserNotFoundException;
+import telran.java58.accounting.model.Role;
 import telran.java58.accounting.model.UserAccount;
 
 @Service
 @RequiredArgsConstructor
-public class UserAccountServiceImpl implements UserAccountService {
+public class UserAccountServiceImpl implements UserAccountService, CommandLineRunner {
     private final UserAccountRepository userAccountRepository;
     private final ModelMapper modelMapper;
 
@@ -81,5 +83,21 @@ public class UserAccountServiceImpl implements UserAccountService {
         String hashedPassword = BCrypt.hashpw(newPassword, BCrypt.gensalt());
         userAccount.setPassword(hashedPassword);
         userAccountRepository.save(userAccount);
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+        if (!userAccountRepository.existsById("admin")) {
+            UserAccount admin = UserAccount.builder()
+                    .login("admin")
+                    .password(BCrypt.hashpw("admin", BCrypt.gensalt()))
+                    .firstName("Admin")
+                    .lastName("Admin")
+                    .role(Role.USER)
+                    .role(Role.MODERATOR)
+                    .role(Role.ADMINISTRATOR)
+                    .build();
+            userAccountRepository.save(admin);
+        }
     }
 }
