@@ -1,5 +1,6 @@
 package telran.java58.security;
 
+import jakarta.servlet.Filter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,6 +11,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import telran.java58.accounting.model.Role;
 
 @Configuration
@@ -17,11 +19,14 @@ import telran.java58.accounting.model.Role;
 @RequiredArgsConstructor
 public class SecurityConfiguration {
     private final CustomWebSecurity webSecurity;
+    private final PasswordExpirationFilter passwordExpirationFilter;
 
     @Bean
     SecurityFilterChain getSecurityFilterChain(HttpSecurity http) throws Exception {
         http.httpBasic(Customizer.withDefaults());
         http.csrf(csrf -> csrf.disable());
+        http.addFilterBefore((Filter) passwordExpirationFilter, UsernamePasswordAuthenticationFilter.class);
+
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/account/register", "/forum/posts/**")
                     .permitAll()
